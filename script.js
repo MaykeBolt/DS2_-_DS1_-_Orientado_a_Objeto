@@ -1,7 +1,7 @@
 //!! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !!  PROBLEMAS  !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !!
 
-// *else* nas funções *selectcharacter()* e *selectrival()* está causando loop mesmo quando a resposta é dada corretamente.
-// Deveria repetir a janela somente quando você coloca-se um nome errado e não quando você coloca "arthur", "sleveen" ou "wanda".
+// All clear
+// 
 
 
 
@@ -36,79 +36,102 @@ class character { // Status dos personagems)
 }
 // - // - // - // - // - // - // - // - // - // - // - // - //  REALISMO  \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\
 
-let arthur = new character("Arthur",40,30,20,10,"Sword","Chains","Shield","Helmet");
-let sleveen = new character("Sleveen",30,15,30,15,"Crossbow","Goggles","Poison Bug","Gloves");
-let wanda = new character("Wanda",15,20,15,40,"Wand","Vitality Potion","Amulet of Karma","Bracelet");
+let arthur = new character("Arthur",40,30,20,10,"Espada","Correntes","Escudo","Capacete");
+let sleveen = new character("Sleveen",30,15,30,15,"Besta","Luneta","Mosquito Venenoso","Luvas");
+let wanda = new character("Wanda",15,20,15,40,"Varinha","Poção de Vitalidade","Amuleto de Karma","Bracelete");
+let playerdmgnumber // número de dano da arma principal
+let rivaldmgnumber
+let playerluck // Sorte do Sleveen
+let manacost // Gasto de Mana por ataque de Wanda
 
 // - // - // - // - // - // - // - // - // - // - // - // - //  Aviso do Devtools  \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\
 alert("Aperte o botão Fn12 ou o combo de teclas Fn + F12 para acessar o Devtools.\nIsso irá mostrar os status dos personagems.")
 
 // - // - // - // - // - // - // - // - // - // - // - // - //  Character Selection  \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\
 let chara
-
-function selectcharacter() {         //  *Let chara* não pode estar dentro de uma *function* pois o *chara.verifystatus()* não vai conseguir ler o *Let*
-    var choosecharacter
-    choosecharacter = window.prompt("Selecione o seu personagem \nArthur o Cavaleiro | Sleveen o Arqueiro | Wanda a Maga\n(Somente digite o primeiro nome em MINUSCULO)")
-
-    if (choosecharacter == "arthur") {
-        chara = arthur
-    }
-    if (choosecharacter == "sleveen") {
-        chara = sleveen
-    }
-    if (choosecharacter == "wanda") {
-        chara = wanda
-    }
-    //else {                            !!!
-    //    selectcharacter();            !!!
-    //}                                 !!!
-}
-selectcharacter();
-chara.verifystatus();
-
-// - // - // - // - // - // - // - // - // - // - // - // - //  Rival Selection  \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\
 let rival
 
-function selectrival() {
-    var chooserival
+class characterselection {
     
-    if (chara == arthur) {
-    chooserival = window.prompt("Selecione o seu rival \nSleveen o Arqueiro | Wanda a Maga\n(Somente digite o primeiro nome em MINUSCULO)")
-    
-    if (chooserival == "sleveen") {
-        rival = sleveen
-    }
-    if (chooserival == "wanda") {
-        rival = wanda
-    }
-    //else {                            !!!
-    //    selectrival();                !!!
-    //}                                 !!!
-  }
-    if (chara == sleveen) {
-    chooserival = window.prompt("Selecione o seu rival \nArthur o Cavaleiro | Wanda a Maga\n(Somente digite o primeiro nome em MINUSCULO)")
+    selectcharacter() {
+        let choosecharacter
+        choosecharacter = window.prompt("Selecione o seu personagem \nArthur o Cavaleiro | Sleveen o Arqueiro | Wanda a Maga\n(Somente digite o primeiro nome em MINUSCULO)")
 
-    if (chooserival == "arthur") {
-        rival = arthur
+        if (choosecharacter == "arthur") {
+            chara = arthur
+            playerdmgnumber = 9
+        }
+        else if (choosecharacter == "sleveen") {
+            chara = sleveen
+            playerdmgnumber = 6
+        }
+        else if (choosecharacter == "wanda") {
+            chara = wanda
+            playerdmgnumber = 12
+            manacost = 10
+        }
+        else {
+            characterchoose.selectcharacter();
+        }    
     }
-    if (chooserival == "wanda") {
-        rival = wanda
-    }
-    //else {                            !!!
-    //    selectrival();                !!!
-    //}                                 !!!
-  }
-    if (chara == wanda) {
-    chooserival = window.prompt("Selecione o seu rival \nArthur o Cavaleiro | Sleveen o Arqueiro\n(Somente digite o primeiro nome em MINUSCULO)")
 
-    if (chooserival == "arthur") {
-        rival = arthur
+    selectrival() {
+        let chooserival
+        
+        if (chara == arthur) {
+        chooserival = window.prompt("Selecione o seu rival \nSleveen o Arqueiro | Wanda a Maga\n(Somente digite o primeiro nome em MINUSCULO)")
+        
+            if (chooserival == "sleveen") {
+                rival = sleveen
+                rivaldmgnumber = 6
+            }
+            else if (chooserival == "wanda") {
+                rival = wanda
+                rivaldmgnumber = 12
+                manacost = 10
+            }
+            else {
+                characterchoose.selectrival();
+            }
+        }
+
+        else if (chara == sleveen) {
+            chooserival = window.prompt("Selecione o seu rival \nArthur o Cavaleiro | Wanda a Maga\n(Somente digite o primeiro nome em MINUSCULO)")
+            if (chooserival == "arthur") {
+                rival = arthur
+                rivaldmgnumber = 9
+            }
+            else if (chooserival == "wanda") {
+                rival = wanda
+                rivaldmgnumber = 12
+                manacost = 10
+            }
+            else {
+                characterchoose.selectrival();
+            }
+        }
+
+        else {
+            chooserival = window.prompt("Selecione o seu rival \nArthur o Cavaleiro | Sleveen o Arqueiro\n(Somente digite o primeiro nome em MINUSCULO)")
+            if (chooserival == "arthur") {
+                rival = arthur
+                rivaldmgnumber = 9
+            }
+            else if (chooserival == "sleveen") {
+                rival = sleveen
+                rivaldmgnumber = 6
+            }
+            else {
+                characterchoose.selectrival();
+            }
+        }
     }
-    if (chooserival == "sleveen") {
-        rival = sleveen
-    }
-  }
+
 }
-selectrival();
-console.log("==========================================================") //Barra só para separar os status do jogador do rival.
+
+let characterchoose = new characterselection();
+characterchoose.selectcharacter();
+chara.verifystatus();
+characterchoose.selectrival();
+console.log("==========================================================");
 rival.verifystatus();
