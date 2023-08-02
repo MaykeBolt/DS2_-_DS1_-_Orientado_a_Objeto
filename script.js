@@ -43,15 +43,18 @@ let playerdmgnumber // número de dano da arma principal
 let rivaldmgnumber
 let playerluck // Sorte do Sleveen
 let manacost // Gasto de Mana por ataque de Wanda
+
 let charapoisoncheck //Envenenamento causado pelo Player
 let rivalpoisoncheck //Envenenamento causado pelo Rival
 let rivalpoisoncounter = 0 //Contador de Envenenamento do Rival
 let charapoisoncounter = 0 //Contador de Envenenamento do Player
 let rivalpoisondmg //Dano de Poison para o Rival
 let charapoisondmg //Dano de Poison para o Player
-let karmacheck
-let rivalkarmareflect
-let charakarmareflect
+
+let rivalkarmacheck // Verificar se o Inimigo tem karma
+let charakarmacheck // Verificar se o Jogador tem karma
+let rivalkarmareflect //Efeito de karma sofrido ao Inimigo
+let charakarmareflect //Efeito de karma sofrido ao Jogador
 
 // - // - // - // - // - // - // - // - // - // - // - // - //  Aviso do Devtools  \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\
 alert("Aperte o botão Fn12 ou o combo de teclas Fn + F12 para acessar o Devtools.\nIsso irá mostrar os status dos personagems.")
@@ -200,13 +203,52 @@ class combatmenu {
         }
     }
 
-    karmaverify() {
-        if (charakarmacheck == 1) {
+    rivalkarmaverify() {
+        if (rivalkarmacheck == 1) {
             rivalkarmareflect = 0.5
+            battlemenu.rivalkarmadmg();
         }
         else {
             rivalkarmareflect = 0
         }
+    }
+
+    charakarmaverify() {
+        if (charakarmacheck == 1) {
+            charakarmareflect = 0.5;
+            battlemenu.charakarmadmg();
+        }
+        else {
+            charakarmareflect = 0;
+        }
+    }
+
+    rivalkarmadmg() {
+        if (rivalkarmareflect > 0) {
+            rival.health = rival.health - (rivaldmgnumber * rivalkarmareflect);
+            rivalkarmacheck = 0;
+            battlemenu.rivalkarmaverify();
+        }
+    }
+
+    charakarmadmg() {
+        if (charakarmareflect > 0) {
+            chara.health = chara.health - (rivaldmgnumber * charakarmareflect);
+            charakarmacheck = 0;
+            battlemenu.charakarmaverify();
+        }
+    }
+
+    karmamessage() {   //Avisando que o seu amuleto irá refletir o dano do inimigo
+        alert("O amuleto em seu pescoço irá refletir metade do dano a "+rival.name+".")
+    }
+
+    rivalkarmadmgmessage() {    //Rival levando um tome
+        alert(rival.name+" recebeu metade do dano de sua arma de volta a si mesmo.")
+    }
+
+    rivalkarmadmgmessage() {    //Você levando um tome
+        alert(chara.name+" recebeu metade do dano de sua arma de volta a si mesmo.")
     }
 
     luckcheck(min, max) {
@@ -292,8 +334,12 @@ class combatmenu {
                     }
             }
         }
-        else if (chooseitem == "escudo" || chooseitem == "mosquito venenoso" || chooseitem == "amuleto de karma") {
+        else if (chooseitem == "escudo" || chooseitem == "mosquito venenoso") {
             charaitemselected = 2
+            battlemenu.mainmenu();
+        }
+        else if (chooseitem == "amuleto" || chooseitem == "Amuleto" || chooseitem == "amuleto de karma" || chooseitem == "Amuleto de Karma" || chooseitem == "karma" || chooseitem == "Karma") {
+            battlemenu.karmamessage();
             battlemenu.mainmenu();
         }
         else if (chooseitem == "capacete" || chooseitem == "luvas" || chooseitem == "bracelete") {
@@ -327,11 +373,13 @@ class combatmenu {
             battlemenu.charapoisoncounterverify();
         }
 
-        else if (chooseitem == "amuleto de karma") {
-            alert("Você bloqueou com seus braços.\n O amuleto em seu pescoço irá refletir metade do dano a "+rival.name+".")
-            blockcondition = 0.5;
-            karmacheck = 1;
-            battlemenu.karmaverify();
+        else if (chooseitem == "amuleto de karma" || "Amuleto de Karma" || "amuleto" || "Amuleto" || "Karma" || "karma") {
+            alert("Você bloqueou com seus braços.")
+            battlemenu.rivalkarmamessage();
+
+            blockcondition = 0.5;   //Ela ja recebe dano pela metade
+            rivalkarmacheck = 1;
+            battlemenu.rivalkarmaverify();
         }
         else if (chara == wanda) {
             alert("Você bloqueou com seus braços.")
@@ -348,11 +396,14 @@ class combatmenu {
         if (chara == arthur) {
             if (charaitemselected == 1) {
                 alert("Você puxou "+rival.name+" com suas Correntes e desferiu sua espada sobre ele!\n"+rival.name+" perdeu 12 de vida!")
-                rival.health = rival.health - (playerdmgnumber + 3)
+                rival.health = rival.health - (playerdmgnumber + 3);
+                battlemenu.charakarmaverify();
+
             }
             else {
             alert("Você cortou "+rival.name+" com sua espada.\n"+rival.name+" perdeu 9 de vida!")
-            rival.health = rival.health - playerdmgnumber
+            rival.health = rival.health - playerdmgnumber;
+            battlemenu.charakarmaverify();
             }
         }
 
@@ -367,6 +418,7 @@ class combatmenu {
                 battlemenu.charapoisoncounterverify();
                 battlemenu.charapoisonmessage()
                 battlemenu.poisoncheckverify();
+                battlemenu.charakarmaverify();
             }
             else if (charaitemselected == 2) {
                 alert("Você rasteja um dos mosquitos em sua flecha, a cobrindo de seu sangue venenoso.\n"+rival.name+" perdeu 6 de vida!\n"+rival.name+" está envenenado por três rodadas!")
@@ -374,6 +426,7 @@ class combatmenu {
                 charapoisoncheck = 1;
                 battlemenu.poisoncheckverify();
                 battlemenu.charapoisoncounterverify();
+                battlemenu.charakarmaverify();
             }
             else {
                 alert("Você acertou "+rival.name+" com uma flecha.\n"+rival.name+" perdeu 6 de vida!")
@@ -382,6 +435,7 @@ class combatmenu {
                 battlemenu.charapoisoncounterverify();
                 battlemenu.charapoisonmessage()
                 battlemenu.poisoncheckverify();
+                battlemenu.charakarmaverify();
             }
         }
         else {
