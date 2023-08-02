@@ -227,7 +227,7 @@ class combatmenu {
         }
 
 
-        if (chara == sleveen) {
+        else if (chara == sleveen) {
             if (playerluck >= 5) {
 
             if (itemselected == 1) {
@@ -246,22 +246,21 @@ class combatmenu {
         else {
             alert("Você errou o alvo!\nRodada passada para "+rival.name+"!");
         }
+    }
 
-
-        if (chara == wanda) {
-            if (totalmana >= 1) {
+        else if (chara == wanda) {
+            if (chara.mana >= 1) {
                 alert("Você atirou uma bola de fogo a "+rival.name+"!\n"+rival.name+" perdeu 12 de vida!");
                 rival.health = rival.health - playerdmgnumber;
-                totalmana = chara.mana - manacost;
-                chara.mana = totalmana
+                chara.mana = chara.mana - manacost
             }
             else {
                 alert("Você não possui mais mana para atacar o inimigo!\n No entanto, "+rival.name+" levou um belo murro.\n"+rival.name+" perdeu 6 de vida!");
                 rival.health = rival.health - (playerdmgnumber - 6);
-                totalmana = chara.mana + 5;
+                chara.mana = chara.mana + 5;
             }
-        }
-        }
+        }    //Olhe sempre as chaves que pode esta travando o codigo
+            //Também cuidado com o if, else if, else
 }
 }
 
