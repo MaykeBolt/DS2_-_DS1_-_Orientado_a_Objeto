@@ -1,9 +1,14 @@
 //!! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !!  PROBLEMAS  !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !!
 
-// Problema de lógica com o Karma da Wanda
+// Item Menu thingy (Luvas & Bracelete)
 // 
 
-
+//!! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !!  REGRAS  !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !! - !!
+//resetplayerblock() só irá rodar após o inimigo atacar!
+//resetrivalblock() só irá rodar após o player atacar!
+//resetplayeritem() só irá rodar após o player executar uma ação e antes do rival executar a dele.
+//rivalkarmadmg() só irá rodar durante o ataque do inimigo.
+//manaboostreset() irá rodar junto com o resetplayeritem() ou resetrivalitem();
 
 
 
@@ -42,7 +47,11 @@ let wanda = new character("Wanda",15,20,15,40,"Varinha","Poção de Vitalidade",
 let playerdmgnumber // número de dano da arma principal
 let rivaldmgnumber
 let playerluck // Sorte do Sleveen
+let rivalluck
+let nonsweatyhands
 let manacost // Gasto de Mana por ataque de Wanda
+let charamanaboost // Redução de gasto de mana por ataque de Wanda
+let rivalmanaboost
 
 let charapoisoncheck //Envenenamento causado pelo Player
 let rivalpoisoncheck //Envenenamento causado pelo Rival
@@ -162,7 +171,26 @@ rival.verifystatus();
 // - // - // - // - // - // - // - // - // - //  Battle Menu  \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\
 
 class combatmenu {
+    poisonnegativefix() {
+        if (rivalpoisoncounter < 0) {
+            rivalpoisoncounter = 0
+        }
+        else if (charapoisoncounter < 0) {
+            charapoisoncounter = 0
+        }
+    }
+
+    manaboostreset() {
+        if (charamanaboost = 2) {
+            charamanaboost = 0
+        }
+        else if (rivalmanaboost = 2) {
+            rivalmanaboost = 0
+        }
+    }
+
     poisoncheckverify() { //Firstly this when starting the poisoning | Thirdly after the poison started
+        battlemenu.poisonnegativefix();
         if (charapoisoncheck == 1 && rivalpoisoncounter <= 0) {
             rivalpoisoncounter = 3;
         }
@@ -172,6 +200,7 @@ class combatmenu {
     }
 
     charapoisoncounterverify() { //Secondly this when starting the poisoning | Firstly after the poison started
+        battlemenu.poisonnegativefix();
         if (rivalpoisoncounter > 0) {
             rivalpoisondmg = 2
         }
@@ -181,6 +210,7 @@ class combatmenu {
         }
     }
     rivalpoisoncounterverify(){
+        battlemenu.poisonnegativefix();
         if (charapoisoncounter > 0) {
            charapoisondmg = 2 
         }
@@ -203,10 +233,9 @@ class combatmenu {
         }
     }
 
-    rivalkarmaverify() {
+    rivalkarmaverify() { //Ambos estão rodando ao mesmo tempo (Não pode!)
         if (rivalkarmacheck == 1) {
             rivalkarmareflect = 0.5
-            battlemenu.rivalkarmadmg();
         }
         else {
             rivalkarmareflect = 0
@@ -223,7 +252,7 @@ class combatmenu {
         }
     }
 
-    rivalkarmadmg() {
+    rivalkarmadmg() { //Rode durante o ataque do inimigo
         if (rivalkarmareflect > 0) {
             rival.health = rival.health - (rivaldmgnumber * rivalkarmareflect);
             rivalkarmacheck = 0;
@@ -255,13 +284,27 @@ class combatmenu {
         min = Math.ceil(1);
         max = Math.floor(10);
         playerluck = Math.floor(Math.random() * (max - min + 1) ) + min;
+        rivalluck = Math.floor(Math.random() * (max - min + 1) ) + min;
     }
 
+    resetplayerblock() {
+        if (charablockcondition > 0) {
+            charablockcondition = 0
+        }
+    }
 
+    resetrivalblock() {
+        if (rivalblockcondition > 0) {
+            rivalblockcondition = 0
+        }
+    }
 
-
-
-
+    resetplayeritem() {
+        if (chooseitem != 0 && charaitemselected != 0 ) {
+            chooseitem = 0;
+            charaitemselected = 0;
+        }
+    }
 
     mainmenu() {
         combatchoice = window.prompt("Escolha uma ação\nAtacar | Defender | Itens | Correr")
@@ -288,7 +331,7 @@ class combatmenu {
         else if (chara.health <= 0) {
             alert("GAME OVER")
         }
-        else {
+        else if (rival.health <= 0) {
             alert("You Win!")
         }
     }
@@ -300,7 +343,7 @@ class combatmenu {
             charaitemselected = 1
             battlemenu.mainmenu();
         }
-        else if (chooseitem == "poção de vitalidade" || chooseitem == "poção" || chooseitem == "poçao de vitalidade" || chooseitem == "poçao" || chooseitem == "pocao de vitalidade" || chooseitem == "pocao") {
+        else if (chara == wanda && chooseitem == "poção de vitalidade" || chooseitem == "poção" || chooseitem == "poçao de vitalidade" || chooseitem == "poçao" || chooseitem == "pocao de vitalidade" || chooseitem == "pocao") {
             if (chara.health <= 5) {   //Restaura +10hp
                 chara.health = chara.health + 10;
                 alert("Está poção te recuperou "+chara.health+" de vida.");
@@ -338,13 +381,26 @@ class combatmenu {
             charaitemselected = 2
             battlemenu.mainmenu();
         }
-        else if (chooseitem == "amuleto" || chooseitem == "Amuleto" || chooseitem == "amuleto de karma" || chooseitem == "Amuleto de Karma" || chooseitem == "karma" || chooseitem == "Karma") {
+        else if (chara == wanda && chooseitem == "amuleto" || chooseitem == "Amuleto" || chooseitem == "amuleto de karma" || chooseitem == "Amuleto de Karma" || chooseitem == "karma" || chooseitem == "Karma") {
+            rivalkarmacheck = 1;
+            battlemenu.rivalkarmaverify();
             battlemenu.karmamessage();
             battlemenu.mainmenu();
         }
-        else if (chooseitem == "capacete" || chooseitem == "luvas" || chooseitem == "bracelete") {
-            charaitemselected = 3
+        else if (chara.name == arthur && chooseitem == "capacete") {
+            charablockcondition = 0.25;
+            alert("Você equipou um capacete. Isso irá ter proteger de 25% de dano do inimigo.")
             battlemenu.mainmenu();
+        }
+        else if (chara.name == sleveen && chooseitem == "luvas") {
+            charaitemselected = 3;
+            nonsweatyhands = 1;
+            alert("Você equipou suas luvas. Suas mãos suadas não irão interferir tanto na sua mira!")
+            battlemenu.mainmenu();
+        }
+        else if (chara.name == wanda && chooseitem == "bracelete") {
+            charaitemselected = 3;
+            charamanaboost = 2
         }
         else if (chooseitem === null) {
             battlemenu.mainmenu();
@@ -356,18 +412,13 @@ class combatmenu {
 //============//============//
     blockscenario() {
         if (chooseitem == "escudo") {
-            blockcondition = 0.5;
+            charablockcondition = 0.5;
             alert("Você bloqueou com seu escudo!\n Todo dano de "+rival.name+" será cortado pela metade!")
         }
 
-        else if (chooseitem == "capacete") {
-            alert("Você bloqueou com seus braços.\n Seu capacete irá te proteger de 25% de dano.")
-            blockcondition = 0.25;
-        }
-
-        else if (chooseitem == "mosquito venenoso") {
+        else if (chara == sleveen && charaitemselected == 2) {
             alert("Você bloqueou com seus braços.\n O mosquito em suas mãos irá causar envenenamento ao inimigo que te acertar.")
-            blockcondition = 0.15;
+            charablockcondition = 0.15;
             charapoisoncheck = 1;
             battlemenu.poisoncheckverify();
             battlemenu.charapoisoncounterverify();
@@ -375,20 +426,16 @@ class combatmenu {
 
         else if (chooseitem == "amuleto de karma" || "Amuleto de Karma" || "amuleto" || "Amuleto" || "Karma" || "karma") {
             alert("Você bloqueou com seus braços.")
-            battlemenu.rivalkarmamessage();
-
-            blockcondition = 0.5;   //Ela ja recebe dano pela metade
-            rivalkarmacheck = 1;
-            battlemenu.rivalkarmaverify();
+            charablockcondition = 0.5;   //Ela ja recebe dano pela metade
         }
         else if (chara == wanda) {
             alert("Você bloqueou com seus braços.")
             chara.mana = chara.mana + 5
-            blockcondition = 0.15;
+            charablockcondition = 0.15;
         }
         else {
             alert("Você bloqueou com seus braços.")
-            blockcondition = 0.15;
+            charablockcondition = 0.15;
         }
     }
 //============//============//
@@ -409,7 +456,7 @@ class combatmenu {
 
 
         else if (chara == sleveen) {
-            if (playerluck >= 5) {
+            if (nonsweatyhands == 0 && playerluck >= 5 || nonsweatyhands == 1 && playerluck >= 3) {
 
             if (charaitemselected == 1) {
                 alert("Sua luneta permite ver os pontos fracos de "+rival.name+" com mais clareza.\n"+rival.name+" perdeu 9 de vida!")
@@ -431,7 +478,7 @@ class combatmenu {
             else {
                 alert("Você acertou "+rival.name+" com uma flecha.\n"+rival.name+" perdeu 6 de vida!")
                 rival.health = rival.health - (playerdmgnumber + rivalpoisondmg)
-                poisoncounter = poisoncounter - 1
+                rivalpoisoncounter = rivalpoisoncounter - 1
                 battlemenu.charapoisoncounterverify();
                 battlemenu.charapoisonmessage()
                 battlemenu.poisoncheckverify();
@@ -447,7 +494,7 @@ class combatmenu {
             if (chara.mana >= 1) {
                 alert("Você atirou uma bola de fogo a "+rival.name+"!\n"+rival.name+" perdeu 12 de vida!");
                 rival.health = rival.health - playerdmgnumber;
-                chara.mana = chara.mana - manacost
+                chara.mana = chara.mana - (manacost/charamanaboost)
             }
             else {
                 alert("Você não possui mais mana para atacar o inimigo!\n No entanto, "+rival.name+" levou um belo murro.\n"+rival.name+" perdeu 6 de vida!");
@@ -463,7 +510,7 @@ let battlemenu = new combatmenu();
 let combatchoice
 let chooseitem
 let charaitemselected
-let blockcondition
+let charablockcondition
 battlemenu.mainmenu();
 
 
@@ -471,26 +518,22 @@ battlemenu.mainmenu();
 
 
 // - // - // - // - // - // - // - // - // - //  Rival Response  \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\ - \\
-class rivalresponse {
-    rivalchoice(min, max) {
-        min = Math.ceil(1);
-        max = Math.floor(8);
-        rivalchooses = Math.floor(Math.random() * (max - min + 1) ) + min;
-    }
+let rivalblockcondition
 
-    rivalmove() {
-        if (rival == arthur) {
-            if (rivalchooses == 1) {
-                alert(rival.name+" cortou "+chara.name+" com sua espada.\n"+chara.name+" perdeu 9 de vida!")
-                chara.health = chara.health - rivaldmgnumber   
-            }
-            else if (rivalchooses == 2) {
-                alert(rival.name+" bloqueou com seus braços.")
-            }
-        }
-    }
-}
 
-let rivalaction = new rivalresponse();
-let rivalchooses;
-rivalaction.rivalchoice()
+
+//Verificar funcionalidade do Player:
+//Geral}
+//rival.verifystatus()
+//charablockcondition
+
+//Sleveen}
+//playerluck
+//charapoisoncheck
+//rivalpoisoncounter
+//rivalpoisondmg
+
+//Wanda}
+//rivalkarmacheck
+//rivalkarmareflect
+
