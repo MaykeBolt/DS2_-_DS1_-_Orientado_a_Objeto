@@ -326,7 +326,7 @@ class combatmenu {
 //============//============//
     endgame() {
         if (combatchoice == "correr" || combatchoice == "4") {
-            alert("Cagão sem excessão.")
+            alert("Você correu de seu rival, GAME OVER.")
         }
         else if (chara.health <= 0) {
             alert("GAME OVER")
